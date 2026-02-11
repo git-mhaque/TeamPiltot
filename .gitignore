@@ -77,9 +77,6 @@ venv.bak/
 # Miscellaneous
 *.swp
 *~
-*.md 
-*.csv
-*.png
-*.json
-!README.md
-!.clinerules/workflows/*.md
+data/*
+reports/
+Config.md
