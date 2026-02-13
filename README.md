@@ -15,6 +15,13 @@ By leveraging Jira as a data source and Python for deep-dive preprocessing, Beac
 
 # Quick Set Up
 
+## Runtime Environment 
+- IDE: `Visual Studio Code` 
+- Python: `3.12`
+- Extension: `Cline`
+- Model: `gpt-4.1`
+
+
 ## Environment Variables
 
 Copy the example environment file and update it with your details:
@@ -40,6 +47,7 @@ Edit `.env` and set the required environment variables.
 The following diagram shows the orchestration of various workflows: 
 
 ![Workflow](workflow-orchestration.png)
+(Generated using mermaid.ai)
 
 ## Extract Data  
 
