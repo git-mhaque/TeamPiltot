@@ -34,19 +34,6 @@ Edit `.env` and set the required environment variables.
 - `CONFLUENCE_SPACE_KEY`: Your Confluence space key. 
 - `CONFLUENCE_PARENT_PAGE_ID`: You Confluence parent page ID under which reports will be published.  
 
-## Cline Rules 
-
-Create `Config.md` under `.clinerules` with following information:
-```
-# Jira 
-- Jira project: <Your Jira Project Key>
-- Agile board: <Your Agile Board Name>
-
-# Conflucne 
-- Space key: <Default Space Key>
-- Create all pages under this parent page: `<Default Parent Page>` (pageId=<Parent Page ID>)
-- Overwrite or update if any page with the same name already exists
-```
 
 # Run Workflows
 

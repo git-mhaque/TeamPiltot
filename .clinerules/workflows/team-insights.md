@@ -12,7 +12,7 @@ Your goal is to analyze the data and generate a Team Insights report.
 
 ## Step 1: Create a report
 
-Filename: `./reports/Team-Insights.md`
+Filename: `./reports/Report-Team-Insights.md`
 
 Also copy any images in the `./reports` directory for referencing in the report.
 

@@ -12,7 +12,7 @@ You actively analyze data, ask probing questions, and share actionable observati
 
 ## 1. Generate a Sprint Insights Report 
 
-- Filename: `./reports/Sprint-Insights.md`
+- Filename: `./reports/Report-Sprint-Insights.md`
 - Document title: Sprint Insights (<sprint-name>)
 
 <!--
