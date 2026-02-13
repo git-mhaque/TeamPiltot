@@ -32,7 +32,7 @@ Edit `.env` and set the required environment variables.
 - `CONFLUENCE_URL`: Your Confluence URL. 
 - `CONFLUENCE_PAT`: Your Confluence Personal Access Token (PAT). 
 - `CONFLUENCE_SPACE_KEY`: Your Confluence space key. 
-- `CONFLUENCE_PARENT_PAGE_ID`: You Confluence parent page ID under which reports will be published  
+- `CONFLUENCE_PARENT_PAGE_ID`: You Confluence parent page ID under which reports will be published.  
 
 ## Cline Rules 
 
@@ -69,6 +69,13 @@ Create `Config.md` under `.clinerules` with following information:
 ```
 \initiative-insights.md 
 ```
+
+## Publish Insights to Confluence 
+
+```
+\publish-insights.md 
+```
+
 
 <!--
 # Schedule Workflows 

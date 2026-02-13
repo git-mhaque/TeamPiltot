@@ -23,7 +23,7 @@
 
 ## 1. Generate an Initiative Insights Report 
 
-Generate a markdown report with filename: `./reports/Initiative-Insights-YYYY-MM-DD.md` besed on the following group of initiative epics. 
+Generate a markdown report with filename: `./reports/Initiative-Insights.md` besed on the following group of initiative epics. 
 
 
 <!--
