@@ -30,7 +30,7 @@ PLESE DO NOT INCLUDE ANY OTHER SECTIONS IF NOT MENTIONED BELOW
 - Name: <>
 - Start Date: <>(dd-MMM-yyyy)
 - End Date: <>(dd-MMM-yyyy)
-- Days Remaining: <> 
+- Days Remaining: <> (while calculating days remaining subtract 2 days for weekend and the last day)
 ### Stages
 - Total Issues: <>
 - To Do: <> 
@@ -42,7 +42,10 @@ PLESE DO NOT INCLUDE ANY OTHER SECTIONS IF NOT MENTIONED BELOW
 - Points Remaining: <>
 
 ### AI Scrum Master Insights 
-Include 3-5 bullet points under this section cosidering start date, end date, reaminig days, and other stats.  
+Include 3-5 bullet points under this section cosidering following facts: 
+- Start date, end date, reaminig days, and other stats. 
+- Use inspiring and empoweing tone as this team is a high performing team with great track record of executing great sprints. 
+- The team has a name: Polaris. You may use this to personalise the message.   
 
 ---
 
