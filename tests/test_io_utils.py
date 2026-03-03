@@ -3,7 +3,12 @@ from pathlib import Path
 
 import pytest
 
-from scripts.io_utils import InitiativeLoadError, load_epic_keys_from_initiatives
+from scripts.io_utils import (
+    InitiativeLoadError,
+    load_epic_keys_from_initiatives,
+    load_initiatives,
+    merge_initiatives_with_epic_metrics,
+)
 
 
 def _write_initiatives(path: Path, content):
@@ -51,3 +56,54 @@ def test_load_epic_keys_invalid_content(tmp_path, monkeypatch, bad_content):
 
     with pytest.raises(InitiativeLoadError):
         load_epic_keys_from_initiatives()
+
+
+def test_load_initiatives_returns_structure(tmp_path, monkeypatch):
+    monkeypatch.setenv("TEAM_BEACON_DATA_DIR", str(tmp_path))
+    initiatives_path = tmp_path / "initiatives.json"
+    sample = [{"group": "G", "epics": [{"key": "E"}]}]
+    _write_initiatives(initiatives_path, sample)
+
+    result = load_initiatives()
+
+    assert result == sample
+    assert result is not sample  # ensure new list, not same reference
+
+
+def test_merge_initiatives_with_epic_metrics_enriches_data():
+    initiatives = [
+        {
+            "group": "G",
+            "epics": [
+                {"key": "E1", "description": "Original"},
+                {"key": "E2"},
+            ],
+        }
+    ]
+    epic_dataset = [
+        {
+            "issue_number": "E1",
+            "title": "Epic One",
+            "link": "http://jira/E1",
+            "total_issues": 5,
+            "completed": 3,
+            "inprogress": 1,
+            "todo": 1,
+            "percentage_done": 60.0,
+            "percentage_inprogress": 20.0,
+            "percentage_todo": 20.0,
+        }
+    ]
+
+    enriched = merge_initiatives_with_epic_metrics(initiatives, epic_dataset)
+
+    assert enriched[0]["group"] == "G"
+    e1, e2 = enriched[0]["epics"]
+    assert e1["description"] == "Original"
+    assert e1["title"] == "Epic One"
+    assert e1["total_issues"] == 5
+    assert e1["percentage_done"] == 60.0
+    assert e2 == {"key": "E2"}
+
+    # ensure original input not mutated
+    assert initiatives[0]["epics"][0].get("title") is None

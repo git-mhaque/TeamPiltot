@@ -329,12 +329,19 @@ def test_main_happy_path(monkeypatch):
     monkeypatch.setattr(main, "get_sprint_dataset", lambda *args, **kwargs: [{"Name": "Sprint"}])
     monkeypatch.setattr(main, "write_dataset_to_csv", lambda *args, **kwargs: None)
     monkeypatch.setattr(main, "plot_velocity_cycle_time", lambda *args, **kwargs: None)
-    monkeypatch.setattr(main, "load_epic_keys_from_initiatives", lambda *args, **kwargs: ["EPIC-1"])
+    monkeypatch.setattr(main, "load_initiatives", lambda *args, **kwargs: [{"epics": [{"key": "EPIC-1"}]}])
     monkeypatch.setattr(main, "get_epics_dataset", lambda *args, **kwargs: [])
     monkeypatch.setattr(main, "get_sprint_insights_with_creep", lambda *args, **kwargs: {})
     monkeypatch.setattr(main, "write_dataset_to_json", lambda *args, **kwargs: True)
 
-    main.main()
+    import sys
+
+    old_argv = sys.argv
+    sys.argv = ["main.py"]
+    try:
+        main.main()
+    finally:
+        sys.argv = old_argv
 
 def test_main_cli_task_sprint_custom_out(monkeypatch):
     import sys
@@ -420,12 +427,11 @@ def test_main_cli_task_epics(monkeypatch):
     def fake_get_epics_dataset(*args, **kwargs):
         return [{"key": "EPIC"}]
 
-    def fake_write_epics_to_csv(data, filename):
+    def fake_write_epics_to_json(data, filename):
         epics_called["filename"] = filename
 
     monkeypatch.setattr(main, "get_epics_dataset", fake_get_epics_dataset)
-    monkeypatch.setattr(main, "write_dataset_to_csv", fake_write_epics_to_csv)
-    monkeypatch.setattr(main, "write_dataset_to_json", lambda *args, **kwargs: True)
+    monkeypatch.setattr(main, "write_dataset_to_json", fake_write_epics_to_json)
     monkeypatch.setattr(main, "plot_velocity_cycle_time", lambda *args, **kwargs: None)
     monkeypatch.setattr(main, "get_sprint_insights_with_creep", lambda *args, **kwargs: {})
 
@@ -435,5 +441,55 @@ def test_main_cli_task_epics(monkeypatch):
         main.main()
         assert epics_called["filename"] == custom_epics_file
         assert sprint_called["value"] is False
+    finally:
+        sys.argv = old_argv
+
+
+def test_main_cli_task_active_sprint_custom_out(monkeypatch):
+    import sys
+
+    monkeypatch.setenv("JIRA_BASE_URL", "https://example.com")
+    monkeypatch.setenv("JIRA_PAT", "token")
+    monkeypatch.setenv("JIRA_PROJECT_KEY", "CEGBUPOL")
+    monkeypatch.setenv("JIRA_BOARD_ID", "123")
+
+    runtime = SimpleNamespace(
+        project_key="CEGBUPOL",
+        sample_issue_key="CEGBUPOL-1",
+        story_points_field="customfield_10004",
+        board_id="123",
+    )
+
+    monkeypatch.setattr(main, "load_runtime_config", lambda: runtime)
+    monkeypatch.setattr(main, "get_jira_credentials", lambda: ("url", "token"))
+    monkeypatch.setattr(main, "connect_jira", lambda *args, **kwargs: DummyJira())
+    monkeypatch.setattr(main, "get_project", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
+    monkeypatch.setattr(main, "get_issue", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
+    monkeypatch.setattr(main, "get_all_closed_sprints", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
+    monkeypatch.setattr(main, "get_sprint_dataset", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
+    monkeypatch.setattr(main, "plot_velocity_cycle_time", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
+    monkeypatch.setattr(main, "get_epics_dataset", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
+
+    monkeypatch.setattr(main, "get_sprint_insights_with_creep", lambda *args, **kwargs: {"ok": True})
+
+    json_called = {}
+
+    def fake_write_dataset_to_json(data, filename):
+        json_called["filename"] = filename
+
+    monkeypatch.setattr(main, "write_dataset_to_json", fake_write_dataset_to_json)
+
+    old_argv = sys.argv
+    custom_active_sprint_file = "custom_active_sprint_out.json"
+    sys.argv = [
+        "main.py",
+        "--task",
+        "active_sprint",
+        "--active-sprint-out",
+        custom_active_sprint_file,
+    ]
+    try:
+        main.main()
+        assert json_called["filename"] == custom_active_sprint_file
     finally:
         sys.argv = old_argv

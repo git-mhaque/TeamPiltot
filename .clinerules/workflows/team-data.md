@@ -46,7 +46,7 @@ Run the script:
 
 
 ```
-    python3 -m scripts.main --task report  
+    python3 -m scripts.main --task active_sprint  
 ```
 
 
@@ -54,9 +54,9 @@ Run the script:
 
 ## 2. Validate
 Make sure that the following files have been generated: 
-- data/epics_dataset.csv
+- data/epics_dataset.json
 - data/sprint_dataset.csv
-- data/sprint_report.json
+- data/active_sprint.json
 - data/velocity_cycle_time.png
 
 ```

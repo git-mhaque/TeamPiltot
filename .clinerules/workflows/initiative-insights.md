@@ -23,7 +23,7 @@
 
 ## 1. Generate an Initiative Insights Report 
 
-Generate a markdown report with filename: `./reports/Report-Initiative-Insights.md` besed on the following epics data: `./data/epics_dataset.csv`
+Generate a markdown report with filename: `./reports/Report-Initiative-Insights.md` besed on the following epics data: `./data/epics_dataset.json`
 
 
 <!--

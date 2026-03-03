@@ -5,15 +5,16 @@ Usage:
     python -m scripts.main [OPTIONS]
 
 Options:
-    --task {all,project,issue,sprint,chart,epics,report}
+    --task {all,project,issue,sprint,chart,epics,active_sprint}
                         Select a specific task to run (default: all tasks)
     --sprint-out PATH   Output path for sprint dataset CSV (default: sprint_dataset.csv)
-    --epics-out PATH    Output path for epics dataset CSV (default: epics_dataset.csv)
-    --report-out PATH   Output path for sprint JSON report (default: sprint_report.json)
+    --epics-out PATH    Output path for epics dataset JSON (default: epics_dataset.json)
+    --active-sprint-out PATH
+                        Output path for active sprint JSON (default: active_sprint.json)
     --chart-out PATH    Output path for velocity/cycle PNG chart (default: velocity_cycle_time.png)
 
 When --task is omitted or set to "all", the CLI runs the full pipeline in the
-following order: project, issue, sprint, chart, epics, report. Specifying a
+following order: project, issue, sprint, chart, epics, active_sprint. Specifying a
 single task runs only that portion.
 
 Examples:
@@ -34,7 +35,8 @@ from .config import get_jira_credentials, load_runtime_config
 from .epic_service import get_epics_dataset as _build_epics_dataset
 from .io_utils import (
     InitiativeLoadError,
-    load_epic_keys_from_initiatives,
+    load_initiatives,
+    merge_initiatives_with_epic_metrics,
     write_dataset_to_csv,
     write_dataset_to_json,
 )
@@ -123,14 +125,14 @@ def plot_velocity_cycle_time(data_filename="sprint_dataset.csv", output_filename
 
 import argparse
 
-TASK_CHOICES = ("all", "project", "issue", "sprint", "chart", "epics", "report")
+TASK_CHOICES = ("all", "project", "issue", "sprint", "chart", "epics", "active_sprint")
 
 
 def run_cli(
     task: str = "all",
     sprint_out: str = "sprint_dataset.csv",
-    epics_out: str = "epics_dataset.csv",
-    report_out: str = "sprint_report.json",
+    epics_out: str = "epics_dataset.json",
+    active_sprint_out: str = "active_sprint.json",
     chart_out: str = "velocity_cycle_time.png",
 ):
     logging.basicConfig(level=logging.WARN)
@@ -143,7 +145,7 @@ def run_cli(
 
     selected_tasks = [task]
     if task == "all":
-        selected_tasks = ["project", "issue", "sprint", "chart", "epics", "report"]
+        selected_tasks = ["project", "issue", "sprint", "chart", "epics", "active_sprint"]
 
     def run_project():
         project = get_project(jira_service, runtime_config.project_key)
@@ -172,7 +174,7 @@ def run_cli(
 
     def run_epics():
         try:
-            epic_keys = load_epic_keys_from_initiatives()
+            initiatives = load_initiatives()
         except FileNotFoundError as exc:
             logging.error("Cannot run epics task: %s", exc)
             return
@@ -180,15 +182,24 @@ def run_cli(
             logging.error("Cannot run epics task: %s", exc)
             return
 
+        epic_keys: list[str] = []
+        for group in initiatives:
+            for epic in group.get("epics", []):
+                key = epic.get("key")
+                if key and key not in epic_keys:
+                    epic_keys.append(key)
+
         epic_data = get_epics_dataset(jira_service, epic_keys)
         print("Epics Dataset:", epic_data)
-        write_dataset_to_csv(epic_data, filename=epics_out)
 
-    def run_report():
+        enriched_initiatives = merge_initiatives_with_epic_metrics(initiatives, epic_data)
+        write_dataset_to_json(enriched_initiatives, filename=epics_out)
+
+    def run_active_sprint():
         sprint_dataset = get_sprint_insights_with_creep(
             jira_service, runtime_config.board_id, runtime_config.story_points_field
         )
-        write_dataset_to_json(sprint_dataset, filename=report_out)
+        write_dataset_to_json(sprint_dataset, filename=active_sprint_out)
         print(sprint_dataset)
 
     task_map = {
@@ -197,7 +208,7 @@ def run_cli(
         "sprint": run_sprint,
         "chart": run_chart,
         "epics": run_epics,
-        "report": run_report,
+        "active_sprint": run_active_sprint,
     }
 
     for name in selected_tasks:
@@ -216,8 +227,18 @@ def main():
         help="Select a specific task to run (default: all tasks)",
     )
     parser.add_argument("--sprint-out", type=str, default="sprint_dataset.csv", help="Sprint dataset output file")
-    parser.add_argument("--epics-out", type=str, default="epics_dataset.csv", help="Epics dataset output file")
-    parser.add_argument("--report-out", type=str, default="sprint_report.json", help="Sprint JSON report output file")
+    parser.add_argument(
+        "--epics-out",
+        type=str,
+        default="epics_dataset.json",
+        help="Epics dataset JSON output file",
+    )
+    parser.add_argument(
+        "--active-sprint-out",
+        type=str,
+        default="active_sprint.json",
+        help="Active sprint JSON output file",
+    )
     parser.add_argument("--chart-out", type=str, default="velocity_cycle_time.png", help="Velocity/cycle chart output file")
     args = parser.parse_args()
 
@@ -225,7 +246,7 @@ def main():
         task=args.task,
         sprint_out=args.sprint_out,
         epics_out=args.epics_out,
-        report_out=args.report_out,
+        active_sprint_out=args.active_sprint_out,
         chart_out=args.chart_out,
     )
 
