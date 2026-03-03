@@ -1,40 +1,40 @@
 # ROLE 
-You are and experienced Software Engineer specialised in Python ecosystem. 
+You are an experienced Software Engineer specialized in Python ecosystem. 
 
 # GOAL 
-You goal is to setup a proper Python envirnment to execute a script which will connect to Jira and download some raw data and generate charts. 
+Your goal is to setup a proper Python envirnment to run some scripts that will connect to Jira and download raw data and generate chart(s). 
 
-# TASK 
+# TASKS 
 
-## 1. Excecute the following commands 
+## 1. Setup and activate Python virtural environment
 
-Setup a virtual Pyton environment: 
 ```
     python3 -m venv venv
 ```
 
-Activate the virtual environment: 
 ```
     source venv/bin/activate
 ```
 
-Install dependencies: 
+## 2. Install dependencies 
+
 ```
     pip install -r requirements.txt
 ```
 
-Run unit tests:
+## 3. Run unit tests
+
 ```
     python3 -m pytest
 ```
 
 
-Run the script:
+## 4. Run data extraction scripts:
 
 ```
     python3 -m scripts.main --task epics_dataset  
 ```
-```
+
 
 ```
     python3 -m scripts.main --task sprints_dataset
@@ -44,7 +44,7 @@ Run the script:
     python3 -m scripts.main --task active_sprint  
 ```
 
-## 2. Validate
+## 5. Validate
 Make sure that the following files have been generated: 
 - data/epics_dataset.json
 - data/sprints_dataset.csv
