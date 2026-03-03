@@ -31,27 +31,25 @@ Run unit tests:
 
 Run the script:
 
+```
+    python3 -m scripts.main --task epics_dataset  
+```
+```
 
 ```
-    python3 -m scripts.main --task sprints_dataset   
+    python3 -m scripts.main --task sprints_dataset
 ```
 
 ```
     python3 -m scripts.main --task active_sprint  
 ```
 
-```
-    python3 -m scripts.main --task epics  
-```
-
-
-
 ## 2. Validate
 Make sure that the following files have been generated: 
 - data/epics_dataset.json
-- data/sprint_dataset.csv
-- data/active_sprint.json
+- data/sprints_dataset.csv
 - data/velocity_cycle_time.png
+- data/active_sprint.json
 
 ```
     ls -l <filename 1> <filename 2>

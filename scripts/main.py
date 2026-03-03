@@ -5,7 +5,7 @@ Usage:
     python -m scripts.main [OPTIONS]
 
 Options:
-    --task {all,project,issue,sprints_dataset,epics,active_sprint}
+    --task {all,project,issue,sprints_dataset,epics_dataset,active_sprint}
                         Select a specific task to run (default: all tasks)
     --sprint-out PATH   Output path for sprint dataset CSV (default: sprint_dataset.csv)
     --epics-out PATH    Output path for epics dataset JSON (default: epics_dataset.json)
@@ -14,12 +14,12 @@ Options:
     --chart-out PATH    Output path for velocity/cycle PNG chart (default: velocity_cycle_time.png)
 
 When --task is omitted or set to "all", the CLI runs the full pipeline in the
-following order: project, issue, sprints_dataset, epics, active_sprint. Specifying a
+following order: project, issue, sprints_dataset, epics_dataset, active_sprint. Specifying a
 single task runs only that portion.
 
 Examples:
     python -m scripts.main                               # run entire pipeline
-    python -m scripts.main --task epics                  # run only the epics dataset
+    python -m scripts.main --task epics_dataset          # run only the epics dataset
     python -m scripts.main --task sprints_dataset --sprint-out my_sprints.csv
 
 Environment variables JIRA_BASE_URL, JIRA_PAT, JIRA_PROJECT_KEY, and JIRA_BOARD_ID must be set or provided via a config file.
@@ -125,12 +125,12 @@ def plot_velocity_cycle_time(data_filename="sprint_dataset.csv", output_filename
 
 import argparse
 
-TASK_CHOICES = ("all", "project", "issue", "sprints_dataset", "epics", "active_sprint")
+TASK_CHOICES = ("all", "project", "issue", "sprints_dataset", "epics_dataset", "active_sprint")
 
 
 def run_cli(
     task: str = "all",
-    sprint_out: str = "sprint_dataset.csv",
+    sprints_out: str = "sprints_dataset.csv",
     epics_out: str = "epics_dataset.json",
     active_sprint_out: str = "active_sprint.json",
     chart_out: str = "velocity_cycle_time.png",
@@ -145,7 +145,7 @@ def run_cli(
 
     selected_tasks = [task]
     if task == "all":
-        selected_tasks = ["project", "issue", "sprints_dataset", "epics", "active_sprint"]
+        selected_tasks = ["project", "issue", "sprints_dataset", "epics_dataset", "active_sprint"]
 
     def run_project():
         project = get_project(jira_service, runtime_config.project_key)
@@ -164,13 +164,13 @@ def run_cli(
         print(f"Total closed sprints: {len(sprints)}")
         sprint_data = get_sprint_dataset(sprints[:10], jira_service, runtime_config.story_points_field)
         print("Sprint Dataset:", sprint_data)
-        write_dataset_to_csv(sprint_data, filename=sprint_out)
+        write_dataset_to_csv(sprint_data, filename=sprints_out)
         plot_velocity_cycle_time(
-            data_filename=sprint_out,
+            data_filename=sprints_out,
             output_filename=chart_out,
         )
 
-    def run_epics():
+    def run_epics_dataset():
         try:
             initiatives = load_initiatives()
         except FileNotFoundError as exc:
@@ -204,7 +204,7 @@ def run_cli(
         "project": run_project,
         "issue": run_issue,
         "sprints_dataset": run_sprints_dataset,
-        "epics": run_epics,
+        "epics_dataset": run_epics_dataset,
         "active_sprint": run_active_sprint,
     }
 
@@ -223,7 +223,14 @@ def main():
         default="all",
         help="Select a specific task to run (default: all tasks)",
     )
-    parser.add_argument("--sprint-out", type=str, default="sprint_dataset.csv", help="Sprint dataset output file")
+    parser.add_argument(
+        "--sprints-out",
+        "--sprint-out",
+        dest="sprints_out",
+        type=str,
+        default="sprints_dataset.csv",
+        help="Sprint dataset output file",
+    )
     parser.add_argument(
         "--epics-out",
         type=str,
@@ -241,7 +248,7 @@ def main():
 
     run_cli(
         task=args.task,
-        sprint_out=args.sprint_out,
+        sprints_out=args.sprints_out,
         epics_out=args.epics_out,
         active_sprint_out=args.active_sprint_out,
         chart_out=args.chart_out,

@@ -436,7 +436,7 @@ def test_main_cli_task_epics(monkeypatch):
     monkeypatch.setattr(main, "get_sprint_insights_with_creep", lambda *args, **kwargs: {})
 
     old_argv = sys.argv
-    sys.argv = ["main.py", "--task", "epics", "--epics-out", custom_epics_file]
+    sys.argv = ["main.py", "--task", "epics_dataset", "--epics-out", custom_epics_file]
     try:
         main.main()
         assert epics_called["filename"] == custom_epics_file
